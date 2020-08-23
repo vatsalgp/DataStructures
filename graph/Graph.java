@@ -11,11 +11,13 @@ public class Graph {
     }
 
     public void addEdge(final char v1, final char v2, final int weight) {
-        addVertex(v1);
-        addVertex(v2);
-        if (!containsEdge(v1, v2)) {
-            vertex(v1).addEdge(v2, weight);
-            vertex(v2).addEdge(v1, weight);
+        if (weight > 0) {
+            addVertex(v1);
+            addVertex(v2);
+            if (!containsEdge(v1, v2)) {
+                vertex(v1).addEdge(v2, weight);
+                vertex(v2).addEdge(v1, weight);
+            }
         }
     }
 
@@ -59,9 +61,9 @@ public class Graph {
     public void printPath(final char src, char dest) {
         if (containsVertex(src) && containsVertex(dest)) {
             final PriorityQueue<Edge> queue = new PriorityQueue<Edge>();
-            queue.add(new Edge(src, src, 0));
-            final var visited = new HashSet<Character>();
             final var previous = new HashMap<Character, Character>();
+            final var visited = new HashSet<Character>();
+            queue.add(new Edge(src, src));
             int weight = 0;
             while (!queue.isEmpty()) {
                 final var node = queue.remove();
@@ -86,6 +88,96 @@ public class Graph {
             while (!stack.isEmpty())
                 System.out.println(stack.pop());
             System.out.println("Total: " + weight);
+        }
+    }
+
+    public void BFS(char v) {
+        final var visited = new HashSet<Character>();
+        final Queue<Character> queue = new ArrayDeque<Character>();
+        queue.add(v);
+        while (!queue.isEmpty()) {
+            v = queue.remove();
+            if (!visited.contains(v)) {
+                visited.add(v);
+                System.out.println(v);
+                for (final var edge : vertex(v).edges)
+                    queue.add(edge.dest);
+            }
+        }
+    }
+
+    public void DFSIterative(char v) {
+        final var visited = new HashSet<Character>();
+        final Stack<Character> stack = new Stack<Character>();
+        stack.add(v);
+        while (!stack.isEmpty()) {
+            v = stack.pop();
+            if (!visited.contains(v)) {
+                visited.add(v);
+                System.out.println(v);
+                for (final var edge : vertex(v).edges)
+                    stack.add(edge.dest);
+            }
+        }
+    }
+
+    public void DFSRecursive(final char v) {
+        final var visited = new HashSet<Character>();
+        DFS(v, visited);
+    }
+
+    public void printConnectedParts() {
+        final var out = new LinkedList<LinkedList<Character>>();
+        final var visited = new HashSet<Character>();
+        for (final var vertex : vertices)
+            if (!visited.contains(vertex.name))
+                out.add(getConnectedParts(vertex.name, visited));
+        for (final var list : out) {
+            for (final var vertex : list)
+                System.out.print(vertex + " ");
+            System.out.println();
+        }
+    }
+
+    public void printHamiltonianPath() {
+        final var visited = new HashSet<Character>();
+        for (final var vertex : vertices)
+            hamiltonian(vertex.name, visited, "");
+    }
+
+    private void hamiltonian(final char vertex, final HashSet<Character> visited, final String path) {
+        if (!visited.contains(vertex)) {
+            visited.add(vertex);
+            if (visited.size() == vertices.size())
+                System.out.println(path + vertex);
+            for (final var edge : vertex(vertex).edges)
+                hamiltonian(edge.dest, visited, path + vertex);
+            visited.remove(vertex);
+        }
+    }
+
+    private LinkedList<Character> getConnectedParts(Character v, final HashSet<Character> visited) {
+        final var list = new LinkedList<Character>();
+        final Queue<Character> queue = new ArrayDeque<Character>();
+        queue.add(v);
+        while (!queue.isEmpty()) {
+            v = queue.remove();
+            if (!visited.contains(v)) {
+                visited.add(v);
+                list.add(v);
+                for (final var edge : vertex(v).edges)
+                    queue.add(edge.dest);
+            }
+        }
+        return list;
+    }
+
+    private void DFS(final char v, final HashSet<Character> visited) {
+        if (!visited.contains(v)) {
+            visited.add(v);
+            System.out.println(v);
+            for (final var edge : vertex(v).edges)
+                DFS(edge.dest, visited);
         }
     }
 
@@ -115,5 +207,4 @@ public class Graph {
     private int getIndex(final char v) {
         return v - 'A';
     }
-
 }

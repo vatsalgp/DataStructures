@@ -12,7 +12,7 @@ class Edge implements Comparable<Edge> {
     }
 
     Edge(final char src, final char dest) {
-        this(src, dest, 1);
+        this(src, dest, 0);
     }
 
     @Override
