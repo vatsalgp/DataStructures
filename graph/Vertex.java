@@ -11,19 +11,19 @@ class Vertex {
         this.edges = new LinkedList<Edge>();
     }
 
-    public void addEdge(final char vertex, final int weight) {
-        edges.add(new Edge(vertex, weight));
+    public void addEdge(final char dest, final int weight) {
+        edges.add(new Edge(name, dest, weight));
     }
 
     @Override
-    public boolean equals(Object o) {
+    public boolean equals(final Object o) {
         if (o == null)
             return false;
         if (!(o instanceof Vertex))
             return false;
         if (o == this)
             return true;
-        Vertex other = (Vertex) o;
+        final Vertex other = (Vertex) o;
         return other.name == this.name;
     }
 }

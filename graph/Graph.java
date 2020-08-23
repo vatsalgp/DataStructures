@@ -1,16 +1,16 @@
 package graph;
 
-import java.util.ArrayList;
+import java.util.*;
 
 public class Graph {
-    private ArrayList<Vertex> vertices = new ArrayList<Vertex>();
+    private final ArrayList<Vertex> vertices = new ArrayList<Vertex>();
 
-    public void addVertex(char name) {
+    public void addVertex(final char name) {
         if (!containsVertex(name))
             vertices.add(new Vertex(name));
     }
 
-    public void addEdge(char v1, char v2, int weight) {
+    public void addEdge(final char v1, final char v2, final int weight) {
         addVertex(v1);
         addVertex(v2);
         if (!containsEdge(v1, v2)) {
@@ -19,26 +19,26 @@ public class Graph {
         }
     }
 
-    public void removeVertex(char v) {
+    public void removeVertex(final char v) {
         if (containsVertex(v)) {
-            for (var edge : vertex(v).edges)
+            for (final var edge : vertex(v).edges)
                 removeEdgeHelper(edge.dest, v);
             vertices.remove(new Vertex(v));
         }
     }
 
-    public void removeEdge(char v1, char v2) {
+    public void removeEdge(final char v1, final char v2) {
         if (containsEdge(v1, v2)) {
             removeEdgeHelper(v1, v2);
             removeEdgeHelper(v2, v1);
         }
     }
 
-    public boolean containsEdge(char v1, char v2) {
+    public boolean containsEdge(final char v1, final char v2) {
         return getWeightOfEdge(v1, v2) != -1;
     }
 
-    public boolean containsVertex(char v) {
+    public boolean containsVertex(final char v) {
         if (getIndex(v) >= vertices.size())
             return false;
         else
@@ -46,36 +46,73 @@ public class Graph {
     }
 
     public void printVertices() {
-        for (var vertex : vertices)
+        for (final var vertex : vertices)
             System.out.println(vertex.name);
     }
 
     public void printEdges() {
-        for (var vertex : vertices)
-            for (var edge : vertex.edges)
-                System.out.println(vertex.name + " -> " + edge.dest + " @ " + edge.weight);
+        for (final var vertex : vertices)
+            for (final var edge : vertex.edges)
+                printEdge(vertex.name, edge.dest, edge.weight);
     }
 
-    private void removeEdgeHelper(char v1, char v2) {
-        vertex(v1).edges.remove(new Edge(v2));
+    public void printPath(final char src, char dest) {
+        if (containsVertex(src) && containsVertex(dest)) {
+            final PriorityQueue<Edge> queue = new PriorityQueue<Edge>();
+            queue.add(new Edge(src, src, 0));
+            final var visited = new HashSet<Character>();
+            final var previous = new HashMap<Character, Character>();
+            int weight = 0;
+            while (!queue.isEmpty()) {
+                final var node = queue.remove();
+                final var vertex = node.dest;
+                if (!visited.contains(vertex)) {
+                    visited.add(vertex);
+                    previous.put(vertex, node.src);
+                    if (vertex == dest) {
+                        weight = node.weight;
+                        break;
+                    }
+                    for (final var edge : vertex(vertex).edges)
+                        queue.add(new Edge(vertex, edge.dest, edge.weight + node.weight));
+                }
+            }
+            final Stack<String> stack = new Stack<String>();
+            while (dest != src) {
+                final char prev = previous.get(dest);
+                stack.push(prev + " -> " + dest);
+                dest = prev;
+            }
+            while (!stack.isEmpty())
+                System.out.println(stack.pop());
+            System.out.println("Total: " + weight);
+        }
     }
 
-    private int getWeightOfEdge(char v1, char v2) {
+    private void printEdge(final char src, final char dest, final int weight) {
+        System.out.println(src + " -> " + dest + " @ " + weight);
+    }
+
+    private void removeEdgeHelper(final char v1, final char v2) {
+        vertex(v1).edges.remove(new Edge(v1, v2));
+    }
+
+    private int getWeightOfEdge(final char v1, final char v2) {
         if (!containsVertex(v1))
             return -1;
         if (!containsVertex(v2))
             return -1;
-        for (var edge : vertex(v1).edges)
+        for (final var edge : vertex(v1).edges)
             if (edge.dest == v2)
                 return edge.weight;
         return -1;
     }
 
-    private Vertex vertex(char v) {
+    private Vertex vertex(final char v) {
         return vertices.get(getIndex(v));
     }
 
-    private int getIndex(char v) {
+    private int getIndex(final char v) {
         return v - 'A';
     }
 
