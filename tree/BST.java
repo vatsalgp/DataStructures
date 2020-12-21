@@ -15,18 +15,18 @@ public class BST<T extends Comparable<T>> {
         }
     }
 
-    public void push(final T val) {
-        Root = push(Root, val);
+    public void insert(final T val) {
+        Root = insert(Root, val);
     }
 
-    private Node<T> push(final Node<T> node, final T val) {
+    private Node<T> insert(final Node<T> node, final T val) {
         if (node == null)
             return new Node<T>(val);
         final int compare = val.compareTo(node.data);
         if (compare < 0)
-            node.left = push(node.left, val);
+            node.left = insert(node.left, val);
         else if (compare > 0)
-            node.right = push(node.right, val);
+            node.right = insert(node.right, val);
         return node;
     }
 
